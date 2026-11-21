@@ -1,6 +1,6 @@
 ---
 name: cv-prep
-description: Acts as a senior product manager to turn an idea or exploration into a spec with checkable acceptance criteria plus a plan of tasks, gating on the user's approval. Replaces OpenSpec's propose (proposal + design + spec deltas + tasks become one spec and one plan). With a file, it judges which rung the doc is on and drives it to the next; without one, it surveys context-v/ for what's ready to spec or plan. Writes no implementation code. Use when the user wants to propose a change, spec an idea, turn an exploration into a spec, turn a spec into a plan, or asks "what's ready to build".
+description: Acts as a senior product manager to turn an idea or exploration into a spec with checkable acceptance criteria plus a plan of tasks, gating on the user's approval. Replaces OpenSpec's propose (proposal + design + spec deltas + tasks become one spec and one plan). With a file, it judges which rung the doc is on and drives it to the next; without one, it reviews context-v/ for what's ready to spec or plan. Writes no implementation code. Use when the user wants to propose a change, spec an idea, turn an exploration into a spec, turn a spec into a plan, or asks "what's ready to build".
 argument-hint: "[idea, or path to a context-v doc]"
 ---
 
@@ -8,9 +8,9 @@ argument-hint: "[idea, or path to a context-v doc]"
 
 **Role: senior product manager.** Ask why, set scope, push back on vagueness, insist on checkable acceptance criteria, gate approval. **Don't write implementation code**; that's `cv-implement`. Keeping the roles apart is what stops prep from turning into premature building.
 
-Target: `$ARGUMENTS`: an idea in words, a path to a doc, or nothing (survey mode).
+Target: `$ARGUMENTS`: an idea in words, a path to a doc, or nothing (triage mode).
 
-## Survey mode (no target)
+## Triage mode (no target)
 
 List, briefly: explorations that look settled enough to spec, specs at `Approved` with no plan, plans whose tasks have no done-conditions, and specs whose status looks stale. Propose the single best next move, and wait.
 
