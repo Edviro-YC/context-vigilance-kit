@@ -1,53 +1,52 @@
 ---
-type: Plans                         # exact: the folder's name (OKF requires it)
-title: "Plan: TITLE HERE"
-description: ""                     # one plain sentence: what this is (OKF indexes and search show it)
-lede: ""                            # optional: one hook line, 140 characters max
-publish: false                      # a decision: flip only after reading the finished doc
+type: Plans                       # exact: the folder's name in Train-Case
+title: "TITLE HERE"
+description: ""                   # one plain sentence: what this is
+status: Draft                     # moves with its spec: Approved → Implementing → Staged → Shipped
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
-date_authored_initial_draft: YYYY-MM-DD
-date_authored_current_draft: YYYY-MM-DD   # bump only on a substantive revision
-date_authored_final_draft:          # leave empty until it's actually final
 authors:
-  - AUTHOR                          # humans only
+  - AUTHOR                        # humans only
 augmented_with:
-  - HARNESS on MODEL                # e.g. Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.1
-status: Draft
-tags:
-  - Plan
-spec_reference: "[[Spec-File-Name]]"   # the spec this plan carries out, if any
-site_uuid: GENERATE                 # run: uuidgen | tr 'A-Z' 'a-z'   (never type one)
-hex_code: GENERATE                  # run: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
+  - HARNESS on MODEL              # e.g. Claude Code on Claude Opus 5.5
+tags: []
+spec: ""                          # "[[specs/File-Name|File Name]]": the spec this carries out
+repos: []                         # optional: the repos this touches
+# Add when they apply: prs: [], shipped: (date), remaining_note, deferral_note, superseded_by
 ---
 
-# Plan: TITLE HERE
+# TITLE HERE
 
-> Carries out: [[Spec-File-Name]]
+> Carries out [[specs/File-Name|File Name]].
 
-## Why care?
+## Approach
 
-One paragraph: what this plan gets done and why now.
+One paragraph: the order of work, and why that order.
 
-## Steps
+## Tasks
 
-Ordered. Each step is small enough to verify before the next one starts.
+Tick each box when it's done **and verified**. Group by phase or by repo.
 
-1. **...** Files: `...`. **Done when:** ...
-2. **...** Files: `...`. **Done when:** ...
+### 1. ...
+
+- [ ] 1.1 ... Done when: ...
+- [ ] 1.2 ... Done when: ...
+
+### 2. ...
+
+- [ ] 2.1 ... Done when: ...
+
+## Verification
+
+The commands, tests, and click-paths that prove the spec's acceptance criteria.
 
 ## Risks and rollback
 
 - ...
 
-## Acceptance criteria
-
-- [ ] ...
-
 ## Done when (for this document)
 
-- [ ] Frontmatter: every `YYYY-MM-DD`, `AUTHOR`, `HARNESS on MODEL`, and `GENERATE` replaced (IDs minted by command)
-- [ ] Every step names its files and a done-condition someone can check
-      → if a step can't be verified on its own, split it or merge it with the next
-- [ ] Links to its spec (and the spec links back)
+- [ ] Frontmatter has no template placeholders left, and the check passes
+- [ ] Every task names a done-condition someone can check
+      → if a task can't be verified on its own, split it or merge it with the next
+- [ ] Links to its spec, and the spec links back
