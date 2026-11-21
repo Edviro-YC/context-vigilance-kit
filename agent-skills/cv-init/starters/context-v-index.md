@@ -1,29 +1,32 @@
----
-okf_version: "0.2"
----
+# Context
 
-# Prep: deciding what to build
+The living documentation for this project, for people and agents alike. Start with the newest handoff, then the spec or plan that covers your task.
 
-* [Specs](specs/) - What we're building and why, with checks for when it's done
-* [Plans](plans/) - Ordered, scoped steps toward a spec
-* [Prompts](prompts/) - Step-by-step implementation, each step checkable
+## Deciding what to build
 
-# Reflection: how the system works
+* [Explorations](explorations/index.md) - Open questions, each ending in a recommendation
+* [Specs](specs/index.md) - What we're building and why, with acceptance criteria
+* [Plans](plans/index.md) - Task checklists that carry out one spec
+* [Decisions](decisions/index.md) - What was decided, by whom, and the alternatives
 
-* [Blueprints](blueprints/) - Patterns and designs, and the reasoning behind them
-* [Reminders](reminders/) - Short corrections for mistakes agents keep making
-* [Agent Skills](agent-skills/) - Skills specific to this repo
+## How the system works
 
-# Journey: finding out
+* [Blueprints](blueprints/index.md) - How parts of the system work, and why
+* [Reminders](reminders/index.md) - Short corrections for mistakes agents keep making
+* [Loops](loops/index.md) - Recurring processes, run the same way every time
 
-* [Explorations](explorations/) - Questions we haven't answered yet
-* [Issues](issues/) - The path through hard problems, wrong turns included
+## Along the way
 
-# Utility
+* [Issues](issues/index.md) - Hard problems, wrong guesses included
+* [Handoffs](handoffs/index.md) - End-of-session state for the next session
 
-* [Sitemap](sitemap/) - What exists where: pages, routes, endpoints
+## What shipped
 
-# About this folder
+* [Internal changelog](../changelog/internal/index.md) - One entry per production release or shipped change
+* [What's New](../changelog/external/index.md) - Customer-facing entries, plain language
 
-* [Context Vigilance Kit](https://github.com/lossless-group/context-vigilance-kit) - The practice behind this folder, and the agent commands that keep it current (`/cv:kickoff`, `/cv:explore`, `/cv:reflect`, …)
-* [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format) - This folder is an OKF v0.2 bundle: every doc declares a `type`, so any OKF tool can read it
+## How to work here
+
+* Frontmatter, folders, and status: the `context-vigilance` skill
+* Workflow: `cv-kickoff` → `cv-prep` (spec + plan) → `cv-implement` → `cv-reflect` (status, changelog, handoff)
+* Check docs: `python3 .agents/skills/context-vigilance/scripts/check-frontmatter.py --all .`
