@@ -1,35 +1,26 @@
 ---
-type: Explorations                         # exact: the folder's name (OKF requires it)
+type: Explorations                # exact: the folder's name in Train-Case
 title: "TITLE HERE"
-description: ""                     # one plain sentence: what this is (OKF indexes and search show it)
-lede: ""                            # optional: one hook line, 140 characters max
-publish: false                      # a decision: flip only after reading the finished doc
+description: ""                   # one plain sentence: the question
+status: Open                      # Open → Concluded
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
-date_authored_initial_draft: YYYY-MM-DD
-date_authored_current_draft: YYYY-MM-DD   # bump only on a substantive revision
-date_authored_final_draft:          # leave empty until it's actually final
 authors:
-  - AUTHOR                          # humans only
+  - AUTHOR                        # humans only
 augmented_with:
-  - HARNESS on MODEL                # e.g. Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.1
-status: Open
-tags:
-  - Exploration
-site_uuid: GENERATE                 # run: uuidgen | tr 'A-Z' 'a-z'   (never type one)
-hex_code: GENERATE                  # run: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
+  - HARNESS on MODEL              # e.g. Claude Code on Claude Opus 5.5
+tags: []
 ---
 
 # TITLE HERE
 
 ## The question
 
-What we're trying to figure out. Be specific about the decision's parameters.
+What we're trying to figure out, specifically enough that we'll know when it's answered.
 
 ## Why we don't already know
 
-What makes this non-obvious: prior assumptions, conflicting evidence, missing data.
+Prior assumptions, conflicting evidence, missing data.
 
 ## Options
 
@@ -47,13 +38,9 @@ What makes this non-obvious: prior assumptions, conflicting evidence, missing da
 
 Notes from research, prototypes, conversations, agent sessions.
 
-## Tentative direction
+## Recommendation
 
-Where we're leaning, and what would change our mind.
-
-## Outcome
-
-(When it ends: a link to the spec it produced, or "decided not to pursue, because…")
+Where this lands and what would change our mind. When it concludes, link what it produced (a spec, a decision) or say why we're not pursuing it, and set `status: Concluded`.
 
 ## Related
 

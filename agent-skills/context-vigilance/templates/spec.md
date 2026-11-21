@@ -1,62 +1,40 @@
 ---
-type: Specs                         # exact: the folder's name (OKF requires it)
+type: Specs                       # exact: the folder's name in Train-Case
 title: "TITLE HERE"
-description: ""                     # one plain sentence: what this is (OKF indexes and search show it)
-lede: ""                            # optional: one hook line, 140 characters max
-publish: false                      # a decision: flip only after reading the finished doc
+description: ""                   # one plain sentence: what this is
+status: Draft                     # Draft → In-Review → Approved → Implementing → Staged → Shipped
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
-date_authored_initial_draft: YYYY-MM-DD
-date_authored_current_draft: YYYY-MM-DD   # bump only on a substantive revision
-date_authored_final_draft:          # leave empty until it's actually final
 authors:
-  - AUTHOR                          # humans only
+  - AUTHOR                        # humans only
 augmented_with:
-  - HARNESS on MODEL                # e.g. Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.1
-status: Draft
-tags:
-  - Spec
-summary: ""                          # optional, agent-facing: what this doc is FOR and what it unblocks
-# date_work_started: YYYY-MM-DD    # when the WORK happened; omit rather than guess
-# date_work_completed: YYYY-MM-DD
-site_uuid: GENERATE                 # run: uuidgen | tr 'A-Z' 'a-z'   (never type one)
-hex_code: GENERATE                  # run: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
+  - HARNESS on MODEL              # e.g. Claude Code on Claude Opus 5.5
+tags: []                          # Train-Case, e.g. [Billing, Mobile-App]
+repos: []                         # optional: the repos this touches
+# Add when they apply: prs: [], shipped: (date), remaining_note, deferral_note, superseded_by
 ---
 
 # TITLE HERE
 
-## Why care?
+## Why
 
-One paragraph an outsider can read: what this is, who it's for, why it matters now.
+One paragraph an outsider can read: the problem, who has it, and why now.
 
-## Goals
+## What changes
 
-- ...
+- Each new or changed behavior, in a line or two.
 
 ## Non-goals
 
-- ...
-
-## Constraints and assumptions
-
-- ...
+- What this deliberately doesn't do.
 
 ## Design
 
-The what and the why: architecture, data shapes, interfaces, behaviors.
-
-## Phases
-
-Each phase is a slice someone can build and check on its own.
-
-### Phase 1: ...
-
-**Done when:** a check anyone can run (a command, a test, a click-path), not "the code exists".
+How it works: architecture, data shapes, interfaces, migrations. If it spans several repos, say what changes in each.
 
 ## Acceptance criteria
 
-The spec is shipped when all of these are true:
+The spec is shipped when all of these are true. Each is checkable: a command, a test, or a click-path.
 
 - [ ] ...
 
@@ -66,12 +44,12 @@ The spec is shipped when all of these are true:
 
 ## Related
 
-- [[Exploration-This-Came-From]]
+- Plan: [[plans/File-Name|File Name]]
+- Came from: [[explorations/File-Name|File Name]]
 
 ## Done when (for this document)
 
-- [ ] Frontmatter: every `YYYY-MM-DD`, `AUTHOR`, `HARNESS on MODEL`, and `GENERATE` replaced (IDs minted by command)
-- [ ] Every phase and the spec as a whole have checkable done-conditions
-      → if any is "it works" or "looks good", rewrite it before asking for sign-off
-- [ ] Open questions are either answered or explicitly deferred
-- [ ] Linked back to the exploration it came from, if any
+- [ ] Frontmatter has no template placeholders left, and the check passes
+- [ ] Every acceptance criterion is checkable
+      → if one says "works", "is fast", or "looks good", rewrite it before asking for approval
+- [ ] Open questions are answered or explicitly deferred

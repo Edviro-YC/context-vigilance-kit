@@ -1,217 +1,163 @@
 ---
 name: context-vigilance
-description: Manages a project's context-v/ folder, the living documentation that humans and agents share (specs, plans, prompts, blueprints, reminders, explorations, issues, agent-skills, plus extra/, sitemap/, and the experimental loops/, handoffs/, decisions/, habits/, contracts/, docs/, briefs/). Use whenever creating, editing, or organizing any file under a context-v/ folder, choosing which folder a doc belongs in, writing doc frontmatter, or when the user asks about context engineering, AI co-development workflow, or "context-v". Covers folder roles, frontmatter, three- or four-part versioning, status lifecycle, and cross-linking.
+description: Manages a project's context-v/ folder and changelog/, the living documentation that humans and agents share (specs, plans, explorations, decisions, issues, handoffs, reminders, blueprints, loops, surfaces, and internal and external changelog entries). Use whenever creating, editing, or organizing any file under context-v/ or changelog/, choosing which folder a doc belongs in, writing doc frontmatter or status, or when the user asks about context-v, specs, or the changelog. Also the place to start for anyone used to OpenSpec.
 ---
 
 # Context Vigilance
 
-**Treat context with the same vigilance as code.** Agents don't remember between sessions, and people forget too. So each repo keeps a `context-v/` folder: what we're building and why, how the system is designed, what went wrong and how it was fixed. Written so that the user, a future agent session, and a stranger can each pick up where the work left off.
+**Treat context with the same vigilance as code.** Agents don't remember between sessions, and people forget too. So the project keeps a `context-v/` folder: what we're building and why, how the system is designed, what went wrong and how it was fixed, plus a `changelog/` of what shipped. Written so that the user, a future agent session, and a stranger can each pick up where the work left off.
 
-**Norms, not rules.** Most of this is judgment. Be generous reading existing files (they may predate these norms, or be experiments) and careful writing new ones. The parts that have exactly one right answer are marked **exact** below; see *Degrees of freedom*.
+**Norms, not rules.** Most of this is judgment. Be generous reading existing files and careful writing new ones. The parts with exactly one right answer are marked **exact**, and a script checks them (see *The check*).
 
-**Drift policy.** When you find inconsistencies (odd frontmatter, off-pattern filenames, half-adopted conventions), **note them and tell the user. Don't fix them as a side effect of other work.** People run several agent sessions at once, and silent cleanup collides with their work.
+**Drift policy.** When you find inconsistencies (odd frontmatter, off-pattern filenames, stale statuses), **note them and tell the user. Don't fix them as a side effect of other work.** Several agent sessions often run at once, and silent cleanup collides with their work.
 
-## Contents
+## Where context lives
 
-- [The folders](#the-folders) · [Which folder?](#which-folder) · [Degrees of freedom](#degrees-of-freedom)
-- [Frontmatter](#frontmatter) · [Status](#status) · [Writing the doc](#writing-the-doc)
-- [Creating a doc: checklist](#creating-a-doc-checklist) · [Templates](#templates) · [References](#references) · [Related skills and tools](#related-skills-and-tools)
+One `context-v/` and one `changelog/` per project, at the root of the repo that holds the project's context. When a product spans several code repos, that's usually one central specs repo, and each code repo's `AGENTS.md` points to it. Look for that pointer before creating a `context-v/` in a code repo.
 
-## The folders
+```
+context-v/
+  index.md         front page: what lives where, how to start
+  specs/           what & why, with acceptance criteria
+  plans/           task checklists that carry out one spec
+  explorations/    open questions; they end in a recommendation
+  decisions/       a decision: what, who, when, alternatives passed over
+  issues/          a hard problem's path, wrong guesses included
+  handoffs/        end-of-session state for the next session
+  reminders/       short corrections for mistakes agents keep making
+  blueprints/      how part of the system works, and why
+  loops/           recurring processes, written down so they run the same way every time
+  surfaces/        optional: one doc per downstream surface that can go stale
+  extra/           scratch, gitignored
+changelog/
+  internal/YYYY-MM-DD_NN.md   what shipped, for the team (with Surface decisions)
+  external/YYYY-MM-DD_NN.md   customer-facing "What's New", plain language
+```
 
-**Prep: deciding what to build** (highest altitude first)
-
-- **`specs/`**: what we're building and why. Living, updated as decisions change. The source of truth that plans and prompts point at.
-- **`plans/`**: sequenced, scoped work, closer to execution than a spec. Plan-mode output belongs here so it doesn't vanish when the session ends.
-- **`prompts/`**: step-by-step implementation documents (not single chat messages), each step verifiable before the next.
-
-> A prompt without a spec is a vibe. A prompt within a spec is engineering.
-
-**Reflective: how the system works**
-
-- **`blueprints/`**: patterns, architecture, and the reasoning behind them: what an agent must respect to fit in.
-- **`reminders/`**: short corrections born from mistakes an agent keeps making ("we don't use X; use Y").
-- **`agent-skills/`**: skills specific to this repo (`<name>/SKILL.md`), born next to the code they serve.
-
-**Journey: finding out**
-
-- **`explorations/`**: the destination is unclear: research, options, tradeoffs. Ends when you know enough to write a spec, or decide you don't need one. Already know what you want and just need it down? That's a brief (`briefs/`).
-- **`issues/`**: the winding path through a hard problem, wrong guesses included, so nobody retraces it. (If the team uses a ticket system, see the `tracker` role in `context-v/config.md`.)
-
-**Utility, any project**
-
-- **`extra/`**: scratch, pasted transcripts, not-yet-docs. **Gitignored**: add `context-v/extra/` to `.gitignore` when scaffolding.
-- **`sitemap/`**: what exists where: pages, routes, endpoints, screens, so an agent doesn't have to crawl the source.
-
-**Experimental: shape not settled; expect variation and don't normalize it**
-
-- **`loops/`**: recurring processes written down so an agent runs them the same way each time (scope, per-iteration steps, exit conditions).
-- **`handoffs/`**: end-of-session state for the next session: what landed, what's mid-flight, what to load first.
-- **`decisions/`**: the moment a decision was made: what, when, by whom, alternatives passed over.
-- **`habits/`**: recurring maintenance with a trigger and a scope ("keep the README true", "sweep stale statuses monthly").
-- **`contracts/`**: things that must never be violated: standing rules for agents, or exact data and API interfaces.
-- **`docs/`**: user guides: how a person sets up, runs, or uses the project. For the human operating it; a blueprint explains the design, a doc explains the use.
-- **`briefs/`**: creative thinking and intent, captured in whatever shape it arrives: what we want and why. Upstream of a spec; an exploration weighs options, a brief states the destination.
-
-**The folders are a starting set, not a closed list.** New folder types are welcome when the work calls for one: `narratives/`, `profiles/`, `research-notes/`, whatever fits. **exact:** folder names are plural and kebab-case. Two long-standing exceptions stay singular: `extra/` (scratch, outside the bundle) and `sitemap/` (one map of the project). Say in its first doc what belongs there, and tell the user you created it.
-
-**Found a folder that isn't listed?** Don't fight it. Read it, work out which mode it serves, and ask the user whether to keep it, fold it into an existing folder, or promote it to a convention. When unsure, keep it.
-
-**Every doc declares a `type`, whatever folder it's in.** It's the one field the Open Knowledge Format requires, so it keeps any folder, new or old, readable by OKF tools. **exact:** `type` is the folder's own name, plural, in Train-Case: `specs/` → `type: Specs`, `explorations/` → `type: Explorations`, `decisions/` → `type: Decisions`, `loops/` → `type: Loops`, `research-notes/` → `type: Research-Notes`. The type always matches the folder, so it's never a judgment call.
+- **exact:** every folder (and each changelog folder) has an `index.md` with one line per doc: `* [Title](File.md) - one-sentence description`. Add the line when you add the doc.
+- **exact:** filenames are Train-Case (`Add-CSV-Export.md`); handoffs are prefixed with the date (`2026-01-31_CSV-Export.md`); changelog entries are `YYYY-MM-DD_NN.md` (`NN` = `01`, `02`… for that day).
+- Links between docs are Obsidian wikilinks with the path from `context-v/` and an alias: `[[specs/Add-CSV-Export|Add CSV Export]]`.
+- **New folders are fine** when the work calls for one (`research-notes/`). Plural, kebab-case; `type` is its name in Train-Case. Tell the user you created it and add it to `context-v/index.md`.
 
 ## Which folder?
 
-- What to build, with scope and criteria → `specs/`
-- Ordered work toward it → `plans/`
-- Step-by-step execution with checks → `prompts/`
-- How or why the system is designed → `blueprints/`
-- A correction the agent keeps needing → `reminders/`
-- Know-how an agent should load and follow → `agent-skills/`
 - Don't know yet; weighing options → `explorations/`
+- What to build and why, with checks for done → `specs/`
+- The ordered tasks that build one spec → `plans/`
+- A choice made, with the alternatives → `decisions/`
 - Debugging something painful → `issues/`
-- Scratch → `extra/` · What exists where → `sitemap/`
-- A recurring process → `loops/` · State for the next session → `handoffs/` · A decision → `decisions/` (`/cv:decide`) · Recurring upkeep → `habits/` · Inviolable rules → `contracts/` · A user guide → `docs/` · Intent or a creative take → `briefs/`
+- State for the next session → `handoffs/`
+- A correction agents keep needing → `reminders/` · How or why the system is designed → `blueprints/`
+- A process that recurs → `loops/` · Something downstream that can go stale → `surfaces/`
+- Something shipped → `changelog/internal/`, plus `changelog/external/` if a customer can notice it
 
 More detail: [references/doc-type-guide.md](references/doc-type-guide.md).
 
-## Degrees of freedom
+## Coming from OpenSpec
 
-Every step in this practice sits at one of three levels. Match your rigor to the level.
+| OpenSpec | context-v |
+|---|---|
+| `openspec-explore` | `cv-explore` → `context-v/explorations/` |
+| `openspec-propose` (proposal + design + spec deltas + tasks) | `cv-prep` → a spec in `context-v/specs/` plus a plan in `context-v/plans/` |
+| `openspec-apply-change` | `cv-implement` |
+| `openspec-update-change` | edit the spec or plan; bump `date_modified` |
+| `openspec-archive-change` / `sync-specs` | `cv-reflect` → status `Shipped`, changelog entries, surface decisions |
 
-| Level | Meaning | In this practice |
-|---|---|---|
-| **open** | Judgment. Several good answers. | Writing explorations and the body of any doc; naming next steps; whether to fork a long doc |
-| **shaped** | A template or pattern is the default; departing is fine with a reason | Doc structure (the templates); which folder; changelog entries; loop docs |
-| **exact** | One right answer. Don't improvise. | Frontmatter key names and formats; minted IDs; filenames in Train-Case; dates as `YYYY-MM-DD` |
-
-Written-down loops in `loops/` record the level a team chose for each step of their own process.
+There's no separate archive: a shipped spec stays where it is with `status: Shipped`, and the spec *is* the living description of the capability.
 
 ## Frontmatter
 
-New docs start with this baseline. When editing, **respect what's there**: never delete a key you don't recognize, and don't add keys without a reason.
+Required on every doc under `context-v/` and `changelog/`:
 
 ```yaml
 ---
-type: Specs
+type: Specs                 # exact: the folder's name in Train-Case (Changelog for both changelog folders)
 title: "Human-readable title"
 description: "One plain sentence: what this is."
-lede: "One hook line, 140 characters max."
-publish: false
-date_created: 2026-10-05
-date_modified: 2026-10-05
-date_authored_initial_draft: 2026-10-05
-date_authored_current_draft: 2026-10-05
-date_authored_final_draft:
-authors:
-  - Jane Doe
-augmented_with:
-  - Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.1
 status: Draft
-tags:
-  - Train-Case-Tag
-site_uuid: 3f1c9a2e-7b4d-4e8a-9c1f-2d6b8e0a5c47
-hex_code: k3x9q2
+date_created: 2026-01-31
+date_modified: 2026-01-31
 ---
 ```
 
-**Exact:**
+- **Recommended:** `authors` (humans only, a list), `augmented_with` (a list, e.g. `Claude Code on Claude Opus 5.5`, `Codex on GPT-5`), `tags` (Train-Case list).
+- **Optional:** `repos` (repo names a spec touches), `spec: "[[specs/X|X]]"` (on plans and changelog entries), `prs` (URLs), `shipped` (date), `superseded_by`, `deferral_note`, `remaining_note`.
+- **exact:** keys are `snake_case`; dates are `YYYY-MM-DD`; `date_modified` moves on every edit and is never earlier than `date_created`; quote any value containing `: `.
+- When editing, **respect what's there**: never delete a key you don't recognize.
+- Not used here (don't add them): `site_uuid`, `hex_code`, `publish`, `date_authored_*`, `at_semantic_version`, and `lede` except on external changelog entries.
 
-- **`type` is the folder's name in Train-Case** (`specs/` → `Specs`). It's the field the Open Knowledge Format requires; the check rejects a missing or mismatched one. See [references/okf.md](references/okf.md).
-- **Property names are `snake_case`.** Dates are `YYYY-MM-DD`.
-- **`site_uuid` and `hex_code` are minted once, by a command, and never changed.** Never type one; models produce UUID-shaped strings that aren't valid.
-  - `site_uuid`: `uuidgen | tr 'A-Z' 'a-z'` (or `python3 -c "import uuid; print(uuid.uuid4())"`)
-  - `hex_code`: `LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6`
-- **`at_semantic_version` has three parts (`major.minor.patch`, the market standard, or Epoch SemVer such as `1002.3.0`) or four (`epoch.major.minor.patch`, the template default).** The user picks, so keep to the format already in use and count the parts before reading the digits. `semantic_version` is an accepted alias; never rewrite a file just to change which name it uses. See [references/versioning.md](references/versioning.md).
-- **`authors` is humans only**, always a list. Agents go under `augmented_with`.
-- **Tags and status values are Train-Case** (`Issue-Resolution`, `In-Review`).
-
-**Shaped and open:**
-
-- **`date_modified`** moves on every edit. **`date_authored_current_draft`** and the version move only on a *substantive* revision. Leave an empty `date_authored_final_draft` empty until the doc really is final.
-- **`publish`** is a decision, not a default. Never flip an existing value; decide it on a new file by reading the finished doc. Prefer genericizing sensitive specifics over hiding a whole doc.
-- **`lede`** says why someone would care, in one line of plain text, 140 characters or less, with no Markdown. If it wants to grow, put the long version in a `## Why care?` section under the title. Write it after reading the doc; never extract it. A stub gets no lede.
-- **`description`** is one plain sentence saying what the doc is. Indexes and search show it.
-- **`summary`** (optional) is for agents: what the doc is *for* and what it unblocks.
-
-**The `cv` plugin's hook** checks only the **exact** basics before a write to `context-v/` (outside `extra/`): the YAML parses, `type` matches the folder, `title` exists, the two dates are valid and in order, `site_uuid` and `hex_code` are well-formed and unchanged. New files need all six fields; older files are checked only for the fields they have. If it blocks a write, fix what it names and retry. Full field reference: [references/frontmatter-spec.md](references/frontmatter-spec.md).
+Changelog entries and surfaces add their own fields; see the templates. Full reference: [references/frontmatter-spec.md](references/frontmatter-spec.md).
 
 ## Status
 
-`status` says where a doc is in its life, and it has to be true. A folder of `Draft` plans, half of which shipped, can't be trusted.
+`status` says where a doc is in its life, and **it has to be true.** Derive it from evidence (merged PRs, release runs, ticked tasks), never as tidying.
 
-It's also what a workflow dashboard groups by, so the values come in families, one per kind of doc. The list will evolve.
+- **Specs, plans:** `Draft` → `In-Review` → `Approved` → `Implementing` → `Staged` → `Shipped` (or `Partially-Shipped` + `remaining_note`)
+- **Explorations:** `Open` → `Concluded` · **Issues:** `Open` → `Resolved` · **Decisions:** `Decided`
+- **Standing docs** (reminders, blueprints, loops, surfaces, handoffs): `Active` (agents follow it) or `Reference` (agents consult it)
+- **Any doc:** `Deferred` (+ `deferral_note`), `Superseded` (+ `superseded_by`), `Archived`
+- **Changelog:** internal entries are `Shipped`; external entries go `Draft` → `Approved` (a human said yes) → `Published` (live)
 
-- **Planned work** (specs, plans, prompts): `Stub` → `Draft` → `In-Review` → `Signed-Off` or `Ready` → `Implementing` → `Shipped` · `Partially-Shipped`
-- **Issues:** `Open` → `Resolved`
-- **Decisions:** `Decided`
-- **Standing docs** (reminders, habits, contracts, loops, notes, blueprints): `Active` (a rule agents follow) or `Reference` (an explanation agents consult)
-- **Any doc:** `Deferred` · `Stale` · `Superseded` · `Archived`
+`Approved` needs a person's explicit yes; never set it on silence. `Staged` means merged or deployed somewhere short of production. `Shipped` means customers have it. Details: [references/status-discipline.md](references/status-discipline.md).
 
-Fields that move with it:
+## Changelog and surfaces
 
-- **`Stub`**: `publish: false`; promote it to `Draft` the moment someone writes it.
-- **`Shipped`**: set `date_first_published`.
-- **`Partially-Shipped`**: add `## Remaining work (as of YYYY-MM-DD)` listing what's done and what's left.
-- **`Deferred`**: add `deferral_note`.
-- **`Superseded`**: add `superseded_by: "[[Successor-Doc]]"`.
-
-Change status when something real happened (shipped, deferred, superseded), never as tidying, and ask before changing a doc someone else owns. Details: [references/status-discipline.md](references/status-discipline.md).
+- **Internal entries** (`changelog/internal/`): one per production release or shipped change, written by the agent that ships, in the same session. They end with a **Surface decisions** table.
+- **External entries** (`changelog/external/`): only for changes a customer can notice. Plain language for a non-technical reader: no internal repo names, PR links, infrastructure, customer names, or unreleased plans. Start as `Draft`; a human approves.
+- **Surfaces** (`context-v/surfaces/`, optional): one doc per thing downstream of the core product that can go stale (an app, a docs site, a blog, a help center, a demo environment). Each has a `surface_id`, a `location`, a `policy` (`same-release`, `draft-for-review`, `direct`, `batch`, `notify`), and an `approver`. After a release, the **surface check** decides, for each surface, `updated`, `drafted`, `queued`, `not-needed`, or `blocked`, one table row each. The `cv-reflect` skill runs it.
 
 ## Writing the doc
 
-- **Lead with why, for an outsider.** The first paragraph should make sense to someone with no context. Technical depth comes later.
-- **Fork early.** When you notice yourself scrolling past sections to reach the one that matters, split: the pattern into a blueprint, the build into a spec, a debugging trail into an issue, each linked from the parent. The parent keeps the map; children carry the detail. See [references/philosophy.md](references/philosophy.md).
-- **Cross-link** in the style `context-v/config.md` declares under `links:`. The default is an Obsidian wikilink with the file's path, no `.md`, and an alias: `[[specs/Payment-Retry-Policy|Payment Retry Policy]]`. The part after the pipe (`|`) is display text, usually the filename with `-` and `_` turned into spaces, so filenames stay space-free for tools while readers see clean text. Without a config, match the docs around you. Prompts link their spec; reminders link their blueprint; plans link their spec.
-- **Filenames are Train-Case:** `Payment-Retry-Policy.md`.
-- **Specs have a rhythm**: stub first, discuss then write, sign-off gate before building. Load [references/developing-a-spec.md](references/developing-a-spec.md) whenever starting or developing a spec with the user.
+- **Lead with why, for an outsider.** The first paragraph should make sense to someone with no context.
+- **Fork early.** When you notice yourself scrolling past sections to reach the one that matters, split: a pattern into a blueprint, a debugging trail into an issue, a sub-system into its own spec, each linked from the parent. See [references/philosophy.md](references/philosophy.md).
+- **Specs have a rhythm:** stub first, discuss then write, approval before building. Load [references/developing-a-spec.md](references/developing-a-spec.md) when starting or developing a spec with the user.
+- **Acceptance criteria are checkable:** a command, a test, a click-path. "Works" and "looks good" aren't criteria.
+
+## Degrees of freedom
+
+| Level | Meaning | Here |
+|---|---|---|
+| **open** | Judgment; several good answers | The body of any doc; naming next steps; when to split a doc |
+| **shaped** | A template is the default; depart with a reason | Doc structure; which folder; loop docs |
+| **exact** | One right answer | Frontmatter keys, formats and status values; filenames; index lines; Surface decisions rows |
 
 ## Creating a doc: checklist
 
-Copy this into your reply and tick as you go:
+Copy this into your reply and tick as you go (`cv-new` does the mechanics):
 
-- [ ] Found the right `context-v/` (walk up from the current folder; a repo can have several)
-- [ ] Read two or three sibling docs to match tone and frontmatter
-- [ ] Picked the folder (decision list above)
-- [ ] Started from the matching template
-- [ ] Minted `site_uuid` and `hex_code` by command; filled dates, author, `augmented_with`
+- [ ] Found the right `context-v/` (walk up; or follow the `AGENTS.md` pointer to the central specs repo)
+- [ ] Read two or three sibling docs to match tone
+- [ ] Picked the folder and started from its template
+- [ ] Filled the frontmatter: `type`, `title`, `description`, `status`, dates, `authors`, `augmented_with`
 - [ ] Wrote the why first; linked related docs
-- [ ] Added the doc's line to its folder's `index.md` (`* [Title](File.md) - <description>`)
-- [ ] Re-read the frontmatter: it parses, and nothing like `YYYY-MM-DD`, `AUTHOR`, or `GENERATE` is left
-      → if anything is left or it doesn't parse, fix it before saying you're done
-- [ ] Worked through the template's own "Done when" list, if it has one
+- [ ] Added the doc's line to its folder's `index.md`
+- [ ] Ran the check (below) → fix anything it names before saying you're done
 
 ## Templates
 
-Start every new doc from its template in `templates/`. Each one ends with a "Done when" list for that kind of doc.
+Start every new doc from its template in `templates/`: [spec](templates/spec.md), [plan](templates/plan.md), [exploration](templates/exploration.md), [decision](templates/decision.md), [issue](templates/issue.md), [handoff](templates/handoff.md), [reminder](templates/reminder.md), [blueprint](templates/blueprint.md), [loop](templates/loop.md), [surface](templates/surface.md), [internal changelog entry](templates/changelog-internal.md), [external changelog entry](templates/changelog-external.md).
 
-- [templates/spec.md](templates/spec.md)
-- [templates/plan.md](templates/plan.md)
-- [templates/prompt.md](templates/prompt.md)
-- [templates/blueprint.md](templates/blueprint.md)
-- [templates/reminder.md](templates/reminder.md)
-- [templates/exploration.md](templates/exploration.md)
-- [templates/issue.md](templates/issue.md)
-- [templates/loop.md](templates/loop.md)
-- [templates/handoff.md](templates/handoff.md)
-- [templates/decision.md](templates/decision.md)
+## The check
+
+`scripts/check-frontmatter.py` checks the exact parts: the YAML parses, required fields, `type` matches the folder, status is in the vocabulary (with its companion field), dates, changelog `audience` and filenames, surface fields, Surface decisions rows, and leftover template placeholders.
+
+- **Claude Code:** it runs as a `PreToolUse` hook when the kit is vendored, and blocks a write that would add a problem, naming exactly what to fix. Fix what it names and write again.
+- **Anything else (Codex, CI):** run it yourself after writing docs, from the repo root:
+  ```
+  python3 .agents/skills/context-vigilance/scripts/check-frontmatter.py --all .
+  ```
+  It exits non-zero on errors. Warnings (unlisted docs, dropped fields) don't fail it but are worth a look.
 
 ## References
 
 Load the one you need; each stands alone.
 
 - [references/doc-type-guide.md](references/doc-type-guide.md): each folder in depth, with edge cases
-- [references/frontmatter-spec.md](references/frontmatter-spec.md): every field, date families, IDs, sensitivity
-- [references/status-discipline.md](references/status-discipline.md): the lifecycle and when to move it
-- [references/versioning.md](references/versioning.md): semver, four-part, and Epoch SemVer versions, how to tell them apart, and when to bump which part
-- [references/developing-a-spec.md](references/developing-a-spec.md): the spec rhythm, from stub to sign-off
+- [references/frontmatter-spec.md](references/frontmatter-spec.md): every field, including changelog and surface fields
+- [references/status-discipline.md](references/status-discipline.md): the lifecycles, companion fields, when to move status
+- [references/developing-a-spec.md](references/developing-a-spec.md): the spec rhythm, from stub to approval
 - [references/philosophy.md](references/philosophy.md): why the practice works the way it does
-- [references/okf.md](references/okf.md): context-v as an Open Knowledge Format bundle: `type`, `index.md`, field and status mappings, sign-off as `verified`
-- [references/compliance-sweep.md](references/compliance-sweep.md): bringing an existing context-v/ up to the conventions: two phases, by hand, frontmatter only, statuses decided from evidence
 
-## Related skills and tools
+## Related skills
 
-- **Workflow skills in this kit:** `init` (scaffold), `new` (create a doc; shortcuts `explore`, `spec`, `plan`, `prompt`, `blueprint`, `remind`, `issue`, `decide`, `handoff`), `upgrade` (pull the latest kit), `kickoff` (load context at session start), `prep` (explore → spec → plan), `implement` and `loop` (build), `reflect` (close out, hand off, ship).
-- **`pseudomonorepos`**: when the project is a tree of repos, each with its own `context-v/`.
-- **Optional companions** (see the kit's README, "Recommended companions"): if `graphify-out/GRAPH_REPORT.md` exists, read it before scanning folders. It's a map of the codebase. Archify draws diagrams checked against the repo. The Chroma skills cover semantic search over `context-v/`. Use them when present; never require them.
-- **`context-v/config.md`**, if present, says which tools fill roles like `tracker`, `chat`, and `docs`. Without it, everything stays in `context-v/`.
+`cv-init` (scaffold), `cv-new` (create any doc; shortcuts `cv-explore`, `cv-spec`, `cv-decide`, `cv-remind`, `cv-issue`, `cv-handoff`), `cv-kickoff` (load context at session start), `cv-prep` (explore → spec → plan), `cv-implement` (build a spec or plan), `cv-reflect` (close out: status, changelog, surface check, handoff, commit).

@@ -1,137 +1,118 @@
-# context-vigilance-kit
+# context-vigilance-kit (Edviro fork)
 
-> Treat context with the same vigilance as code, and *the context becomes the parent to the code*.
+> Treat context with the same vigilance as code.
 
-**Context Vigilance** is a practice for working with AI coding agents. Every repo keeps a `context-v/` folder of living docs (specs, plans, explorations, issues, handoffs), written so that you, a future agent session, and a stranger can all pick up where the work left off. It's agent memory you can read, edit, and version like code.
+Edviro's lean, generic build of the [Context Vigilance Kit](https://github.com/lossless-group/context-vigilance-kit). A project keeps its living docs in `context-v/` (specs, plans, explorations, decisions, issues, handoffs) and a record of what shipped in `changelog/`, written so that a person, a future agent session, and a stranger can all pick up where the work left off. This kit gives coding agents the practice as [Agent Skills](https://agentskills.io), templates, and one frontmatter check.
 
-This repo is the **installable kit**: a plugin (`cv`) that gives your agent the practice, workflow commands that each put it in a role, templates, and one small safety check. No database, no config, no server.
+Nothing here is specific to one company: it's meant to be vendored into whichever repo holds a product's context. It replaces OpenSpec for teams that want plain Markdown docs instead.
 
-**Site:** [context-v.dev](https://context-v.dev/) · mirror at [lossless-group.github.io/context-vigilance-kit](https://lossless-group.github.io/context-vigilance-kit/). Getting started, the patterns, and the changelog.
+## Install: vendor it
 
-## Install
+```
+git clone https://github.com/Edviro-YC/context-vigilance-kit.git
+context-vigilance-kit/scripts/vendor.sh --dry-run path/to/your-repo   # see what it would do
+context-vigilance-kit/scripts/vendor.sh path/to/your-repo
+```
 
-**Claude Code**, in a session:
+`vendor.sh` is idempotent; rerun it to update. It:
 
-1. Add the kit as a plugin source:
-   ```
-   /plugin marketplace add lossless-group/context-vigilance-kit
-   ```
-2. Install the plugin:
-   ```
-   /plugin install cv@context-vigilance-kit
-   ```
-3. Set up `context-v/` in your repo:
-   ```
-   /cv:init
-   ```
+- copies `agent-skills/*` into `<repo>/.agents/skills/` (Codex and other Agent Skills readers), replacing skills it vendored before, removing ones the kit has dropped, and leaving every other skill alone
+- writes the kit's commit to `.agents/skills/.cv-kit-version`
+- links `.claude/skills` → `../.agents/skills` for Claude Code (if `.claude/skills` is a real folder, it copies into it and warns)
+- adds the frontmatter check to `.claude/settings.json` as a `PreToolUse` hook, keeping your other settings
 
-No approval or listing needed; it installs straight from this repo. From a terminal, use `claude plugin marketplace add …` and `claude plugin install …`.
+Then run `cv-init` in that repo, or paste [`agent-skills/cv-init/starters/AGENTS.snippet.md`](agent-skills/cv-init/starters/AGENTS.snippet.md) into its `AGENTS.md`. Needs `bash` and `python3` (standard library only).
 
-**Any other agent** that reads [Agent Skills](https://agentskills.io) (Codex, Cursor, OpenCode, Pi, …), in a terminal:
+## The skills
 
-1. Download the kit:
-   ```
-   git clone https://github.com/lossless-group/context-vigilance-kit.git
-   ```
-2. Copy its skills into your tool's skills folder (this is the common one; check your tool's docs):
-   ```
-   cp -R context-vigilance-kit/agent-skills/* ~/.agents/skills/
-   ```
+| Skill | What it does |
+|---|---|
+| `context-vigilance` | The practice: folders, frontmatter, status, changelog, surfaces, templates. Loaded whenever an agent touches `context-v/` or `changelog/` |
+| `cv-init` | Scaffolds `context-v/` and `changelog/` with an `index.md` in every folder; offers `surfaces/` and an `AGENTS.md` pointer |
+| `cv-new` | Creates any doc from its template, with filename, dates, and index line. Shortcuts: `cv-explore`, `cv-spec`, `cv-decide`, `cv-remind`, `cv-issue`, `cv-handoff` |
+| `cv-kickoff` | Loads the right context at the start of a session |
+| `cv-prep` | Product manager: turns an idea into a spec with checkable acceptance criteria plus a plan, gated on approval. Writes no code |
+| `cv-implement` | Lead engineer: builds an approved spec's plan, verifying each task by running it, and keeps status true |
+| `cv-reflect` | Closes out: status from evidence, internal changelog entry, external draft when customers notice, the surface check, handoff, commit |
 
-Then ask your agent for a skill by name: *"use the init skill."*
+In Claude Code, type them as commands (`/cv-prep`); elsewhere, ask for the skill by name.
 
-**Anything that reads `AGENTS.md`:** paste [`starters/AGENTS.snippet.md`](starters/AGENTS.snippet.md) into your project. It points the agent at the practice, and that alone gets you most of the way.
+## Coming from OpenSpec
 
-## The cycle
+| OpenSpec | context-v |
+|---|---|
+| `openspec-explore` | `cv-explore` → `context-v/explorations/` |
+| `openspec-propose` (proposal + design + spec deltas + tasks) | `cv-prep` → a spec in `context-v/specs/` plus a plan in `context-v/plans/` |
+| `openspec-apply-change` | `cv-implement` |
+| `openspec-update-change` | edit the spec or plan; bump `date_modified` |
+| `openspec-archive-change` / `sync-specs` | `cv-reflect` → status `Shipped`, changelog entries, surface decisions |
 
-Each command puts the agent in a role. In Claude Code you type them; in other tools, name the skill.
+## Layout
 
-| Command | Role | What it does |
-|---|---|---|
-| `/cv:init` | scaffold | Creates `context-v/` and its folders, gitignores `extra/`, offers an `AGENTS.md` pointer and a `changelog/` |
-| `/cv:explore "…"` | write | Starts a doc from a template, with its `type` and IDs set and a line added to its folder's `index.md`. One shortcut per kind: `/cv:spec`, `/cv:plan`, `/cv:prompt`, `/cv:blueprint`, `/cv:remind`, `/cv:issue`, `/cv:decide`, `/cv:handoff`. Or `/cv:new <kind> "…"` for any of them |
-| `/cv:kickoff` | load context | Reads the latest handoff and proposes the few docs worth loading |
-| `/cv:prep` | product manager | Walks an idea up the ladder (exploration → spec → plan) with acceptance criteria someone can check. Writes no code |
-| `/cv:implement <plan>` | lead engineer | Builds one signed-off spec or plan, verifying each step by running it, and closes its status honestly |
-| `/cv:loop <plan>` | VP of engineering | Builds a bigger one with subagents, under *your* process, written down once in `context-v/loops/` |
-| `/cv:reflect` | close out | Writes the as-built state, files issues, a changelog entry, and a handoff, keeps the indexes current, then commits and pushes |
-| `/cv:upgrade` | upgrade | Pulls the latest kit, however it was installed, says what changed, and offers (never forces) to bring your docs up to new conventions |
+```
+context-v/
+  index.md        specs/  plans/  explorations/  decisions/  issues/  handoffs/
+  reminders/  blueprints/  loops/  surfaces/ (optional)  extra/ (gitignored scratch)
+changelog/
+  internal/YYYY-MM-DD_NN.md     what shipped, for the team, with a Surface decisions table
+  external/YYYY-MM-DD_NN.md     customer-facing "What's New", plain language
+```
 
-**One check runs on its own.** Before your agent writes to `context-v/`, the plugin checks that the frontmatter parses, has the folder's `type`, a title, valid dates, and well-formed, unchanged IDs. If not, the write is blocked with a message saying exactly what to fix. Everything else is judgment, and stays that way. (Needs `python3`; without it the check just doesn't run.)
+Every folder has an `index.md` with one line per doc. Filenames are Train-Case. A **surface** is anything downstream that can go stale when the core product changes (an app, a docs site, a blog, a demo); after each release, `cv-reflect` records one decision per surface: `updated`, `drafted`, `queued`, `not-needed`, or `blocked`.
 
-## Folders, types, and the Open Knowledge Format
+## Frontmatter
 
-`/cv:init` lays down the canonical folders (`specs/`, `plans/`, `explorations/`, `issues/`, …), but they're a starting set. Create new ones when the work calls for it. Two rules keep it all readable:
+Every doc under `context-v/` and `changelog/`:
 
-- **Folder names are plural:** `research-notes/`, not `research-note/`. `extra/` (scratch, gitignored) and `sitemap/` are the long-standing singular exceptions.
-- **Every doc's `type` is its folder's name** in Train-Case: `type: Specs`, `type: Explorations`, `type: Decisions`, `type: Research-Notes`.
+```yaml
+---
+type: Specs                 # the folder's name in Train-Case; Changelog for changelog entries
+title: "Human-readable title"
+description: "One plain sentence: what this is."
+status: Draft
+date_created: 2026-01-31
+date_modified: 2026-01-31
+---
+```
 
-That `type` field is the one thing the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format) (OKF) requires, so a `context-v/` folder is an OKF v0.2 bundle: any OKF tool can read it. Context-v is a *profile* of OKF, adding its folders, lifecycle, versions, and IDs on top. `/cv:init` writes an OKF-shaped `context-v/index.md`, `/cv:new` sets `type` and adds each doc to its folder's index, and the frontmatter check rejects a missing or mismatched `type`. The reasoning, the status mapping, and what's still open are in [the decision](context-v/decisions/Context-V-Is-an-OKF-Profile.md); the mappings are in [`references/okf.md`](agent-skills/context-vigilance/references/okf.md). This repo's own `context-v/` passes OKF's conformance rules and renders in OKF's reference visualizer.
+Plus `authors`, `augmented_with`, and `tags` where useful. Status values per type (`Draft` → `In-Review` → `Approved` → `Implementing` → `Staged` → `Shipped` for specs and plans) are in the `context-vigilance` skill. Status must be true: derived from merged PRs and releases, never as tidying.
 
-## Versions and ledes
+**The check** (`agent-skills/context-vigilance/scripts/check-frontmatter.py`) enforces the exact parts: YAML parses, required fields, `type` matches the folder, status vocabulary, dates, changelog `audience` and filenames, surface fields, one Surface decisions row per surface, no leftover template placeholders. In Claude Code it's a hook that blocks a write adding a problem and names what to fix. For Codex and CI:
 
-Docs carry a version in `at_semantic_version`, and you choose the format:
-
-| Format | Example | Good for |
-|---|---|---|
-| Semantic Versioning, `major.minor.patch` | `0.1.0` | The market standard, and what package tools expect |
-| Four-part, `epoch.major.minor.patch` | `0.0.0.1` | The templates' default, with an extra number for a total pivot |
-| [Epoch SemVer](https://antfu.me/posts/epoch-semver), `{epoch * 1000 + major}.minor.patch` | `1002.3.0` | Keeping an epoch inside a valid semver version |
-
-Nothing enforces a format or asks you to migrate. Agents read all three, keep to the one a doc or repo already uses, and never convert a version. See [`references/versioning.md`](agent-skills/context-vigilance/references/versioning.md).
-
-A doc's `lede` is plain text, not Markdown, because cards, previews, and unfurls show it raw.
-
-## Recommended companions
-
-Optional, installed from their own projects so they stay current. The kit's skills use them when present and never require them.
-
-- **[Graphify](https://github.com/safishamsi/graphify):** a fast map of your codebase that `/cv:kickoff` reads first. `uv tool install graphifyy`, then `graphify install`.
-- **[Archify](https://github.com/tt-a1i/archify):** diagrams checked against your repo, for specs and as-built write-ups. `npx skills add tt-a1i/archify -g`
-- **[Chroma skills](https://github.com/chroma-core/agent-skills):** semantic search once `context-v/` outgrows folder scans. `npx skills add chroma-core/agent-skills --skill "chroma-local"`. *Disclosure: the kit's author is an investor in Chroma.*
-
-Using a ticket system, team chat, or docs site? Copy [`starters/config.md`](starters/config.md) to `context-v/config.md` and say which tool fills each role. Without it, everything stays in `context-v/`.
+```
+python3 .agents/skills/context-vigilance/scripts/check-frontmatter.py --all .
+```
 
 ## What's in this repo
 
 ```
-context-vigilance-kit/
-├── .claude-plugin/
-│   ├── plugin.json        # the cv plugin; skills live in agent-skills/
-│   └── marketplace.json   # makes this repo installable
-├── agent-skills/
-│   ├── context-vigilance/ # the practice: folders, frontmatter, status, templates
-│   ├── pseudomonorepos/   # trees of repos, each with its own context-v/
-│   ├── mobile-x-platform-w-tauri/  # wrap a hosted web app for iPhone and Android, with a non-developer owner
-│   ├── init/  new/  kickoff/  prep/  implement/  loop/  reflect/
-│   ├── explore/  spec/  plan/  prompt/  blueprint/  remind/  issue/  decide/  handoff/
-│   └── upgrade/
-├── hooks/                 # the frontmatter check
-├── starters/              # what /cv:init lays down (context-v/index.md, AGENTS.md snippet), plus config.md
-├── splash/                # the site (Astro), deployed to Vercel and GitHub Pages
-├── context-v/             # this kit's own specs, explorations, issues, decisions
-├── changelog/
-├── LICENSE                # MPL-2.0
-└── LICENSING.md           # what you make with the kit is yours
+agent-skills/
+  context-vigilance/   SKILL.md, references/, templates/, scripts/check-frontmatter.py
+  cv-init/             SKILL.md, starters/ (AGENTS.md snippet, context-v index)
+  cv-new/  cv-kickoff/  cv-prep/  cv-implement/  cv-reflect/
+  cv-explore/  cv-spec/  cv-decide/  cv-remind/  cv-issue/  cv-handoff/
+scripts/vendor.sh      install into a repo
+tests/                 python3 -m unittest discover -s tests
+CHANGELOG.md
+LICENSE  LICENSING.md  MPL-2.0
 ```
 
-**One rule for this repo:** it's for sharing. Skills ported from our own tree are stripped of anything specific to one organization, and our tree-wide context lives in the corpus, not here. Examples can be real: the [survey examples](splash/public/examples/survey/) are views of our own tree, copied from the corpus.
+## Differences from upstream
 
-## How it was designed
+Upstream is a full toolkit for many repos and a public site. This fork keeps the practice and drops the rest:
 
-- **Context-v is an OKF profile (decision):** [`context-v/decisions/Context-V-Is-an-OKF-Profile.md`](context-v/decisions/Context-V-Is-an-OKF-Profile.md)
-- **The plan and its decisions log:** [`context-v/explorations/Context-V-as-a-Portable-Plugin-Any-Agent-Can-Install.md`](context-v/explorations/Context-V-as-a-Portable-Plugin-Any-Agent-Can-Install.md)
-- **The original MVP spec:** [`context-v/specs/MVP-to-Claude-Code-Plugin.md`](context-v/specs/MVP-to-Claude-Code-Plugin.md) (partly superseded by the exploration's decisions)
-- **Making frontmatter status checkable:** [`context-v/explorations/Context-V-as-a-Claude-Code-Plugin.md`](context-v/explorations/Context-V-as-a-Claude-Code-Plugin.md)
-- **The full command catalog**, including later tiers: [`context-v/specs/Commands-and-Agent-Skills-for-Context-V.md`](context-v/specs/Commands-and-Agent-Skills-for-Context-V.md)
+| Removed | Why |
+|---|---|
+| Claude Code plugin packaging (`.claude-plugin/`, `hooks/hooks.json`) | Skills are vendored into the repo that holds the context, so every agent there (Claude Code and Codex) sees the same version |
+| `pseudomonorepos`, `survey` | Built for trees of repos each with their own `context-v/`; this fork assumes one central home per product |
+| `loop`, `upgrade` | Teams bring their own build/ship process; rerunning `vendor.sh` replaces upgrading. The `loops/` doc type stays |
+| `prompt`, `blueprint`, `plan` shortcuts; the `prompts/` folder | Fewer entry points; `cv-new` still creates blueprints and plans |
+| `mobile-x-platform-w-tauri` | Unrelated to context management |
+| `site_uuid`, `hex_code`, `publish`, `lede` (except external changelog), `date_authored_*`, `at_semantic_version`; OKF, versioning, and compliance-sweep references; `config.md` integrations | Fewer fields to get wrong; nothing here reads them |
+| The splash site, its Pages workflow, and the kit's own design history (`context-v/`, `changelog/`) | Upstream's public site and history; still in this repo's git history and upstream |
 
-## Related
-
-- **[`context-v-corpus`](https://github.com/lossless-group/context-v-corpus):** The Lossless Group's own `context-v/` docs across ~40 repos, with a [public catalog](https://lossless-group.github.io/context-v-corpus/). The practice at scale. You don't need it to use the kit.
-- **[`lossless-agent-skills`](https://github.com/lossless-group/lossless-agent-skills):** our org-wide skills, where `context-vigilance` and `pseudomonorepos` originate before being ported here.
+Added: `changelog/internal` and `changelog/external` entries, surfaces and the surface check, the `Approved` and `Staged` statuses, the check's `--all` CLI mode and tests, and `vendor.sh`.
 
 ## License
 
-[MPL-2.0](LICENSE), with an additional permission: what you make with the kit is yours. Copies of its templates and starters, and the `context-v/` docs you write, carry no license obligations. See [LICENSING.md](LICENSING.md).
-
-Branch tiers: `development` → `main` → `master`. Plugin installs and the GitHub Pages deploy read `master`.
+[MPL-2.0](LICENSE), with an additional permission from the upstream authors: what you make with the kit (copies of its templates and starters, and the docs you write) is yours. See [LICENSING.md](LICENSING.md). This is a modified version of the upstream kit; modified files remain under MPL-2.0.
