@@ -17,6 +17,7 @@ KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT = os.path.join(KIT, "agent-skills", "context-vigilance", "scripts", "check-frontmatter.py")
 TEMPLATES = os.path.join(KIT, "agent-skills", "context-vigilance", "templates")
 
+sys.dont_write_bytecode = True  # keep __pycache__ out of the skill folder (it gets vendored)
 spec = importlib.util.spec_from_file_location("check_frontmatter", SCRIPT)
 cf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cf)
